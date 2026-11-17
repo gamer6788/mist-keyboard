@@ -1,6 +1,4 @@
 
-
-
 pluginManagement {
     repositories {
         google()
@@ -18,4 +16,6 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "mist-keyboard"
+
 include(":app")
+project(":app").projectDir = file("app")
