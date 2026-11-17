@@ -1,5 +1,6 @@
 
 
+
 pluginManagement {
     repositories {
         google()
@@ -16,5 +17,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "MIST Keyboard"
+rootProject.name = "mist-keyboard"
 include(":app")
