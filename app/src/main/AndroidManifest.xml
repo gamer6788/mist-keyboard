@@ -5,8 +5,20 @@
     <application
         android:allowBackup="true"
         android:label="MIST Keyboard"
+        android:icon="@drawable/ic_mist"
         android:theme="@android:style/Theme.Material.NoActionBar"
         android:supportsRtl="true">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+
+        </activity>
 
         <service
             android:name=".MistKeyboardService"
@@ -15,12 +27,13 @@
             android:exported="true">
 
             <intent-filter>
-                <action android:name="android.view.InputMethod" />
+                <action android:name="android.view.InputMethod"/>
             </intent-filter>
 
             <meta-data
                 android:name="android.view.im"
-                android:resource="@xml/method" />
+                android:resource="@xml/method"/>
+
         </service>
 
     </application>
