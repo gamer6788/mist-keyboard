@@ -9,6 +9,7 @@ import android.view.View
 import android.view.inputmethod.InputConnection
 import android.widget.*
 import kotlin.random.Random
+import android.app.AlertDialog
 
 class MistKeyboardView(
     private val service: MistKeyboardService,
