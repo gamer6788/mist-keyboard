@@ -112,14 +112,11 @@ class MainActivity : Activity() {
             isAllCaps = false
             gravity = Gravity.CENTER
             includeFontPadding = false
+
             minHeight = dp(54)
             minimumHeight = dp(54)
 
             setPadding(dp(8), 0, dp(8), 0)
-
-            insetTop = 0
-            insetBottom = 0
-
             setTextColor(Color.WHITE)
 
             background = GradientDrawable().apply {
