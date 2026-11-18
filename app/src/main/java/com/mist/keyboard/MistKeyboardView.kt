@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
+import android.view.HapticFeedbackConstants
 import android.view.inputmethod.InputConnection
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -51,6 +52,14 @@ class MistKeyboardView(
         background = MistSpaceBackground()
 
         buildKeyboard()
+    }
+
+    private fun provideHapticFeedback(view: android.view.View) {
+        view.isHapticFeedbackEnabled = true
+
+        view.performHapticFeedback(
+            HapticFeedbackConstants.VIRTUAL_KEY
+        )
     }
 
     private fun buildKeyboard() {
@@ -139,7 +148,12 @@ class MistKeyboardView(
                 12
             )
 
-            setOnClickListener { action() }
+            isHapticFeedbackEnabled = true
+
+            setOnClickListener {
+                provideHapticFeedback(this)
+                action()
+            }
         }
     }
 
@@ -180,7 +194,10 @@ class MistKeyboardView(
                 }
             )
 
+            keyView.isHapticFeedbackEnabled = true
+
             keyView.setOnClickListener {
+                provideHapticFeedback(keyView)
                 handleKey(key)
             }
         }
@@ -200,6 +217,7 @@ class MistKeyboardView(
             service.currentInputConnection ?: return
 
         when (key) {
+
             "⇧" -> {
                 isShifted = !isShifted
                 buildKeyboard()
@@ -246,7 +264,6 @@ class MistKeyboardView(
                     key
                 }
 
-                // Transform typed text, never the keyboard labels.
                 connection.commitText(
                     fontManager.transform(output),
                     1
