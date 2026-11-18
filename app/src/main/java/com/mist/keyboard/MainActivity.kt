@@ -15,6 +15,9 @@ class MainActivity : Activity() {
 
     private val bg = Color.rgb(3, 7, 20)
 
+    private fun dp(value: Int): Int =
+        (value * resources.displayMetrics.density).toInt()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -24,7 +27,8 @@ class MainActivity : Activity() {
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
-            setPadding(28, 30, 28, 30)
+            setPadding(dp(28), dp(24), dp(28), dp(24))
+
             background = GradientDrawable(
                 GradientDrawable.Orientation.TL_BR,
                 intArrayOf(
@@ -40,16 +44,22 @@ class MainActivity : Activity() {
             scaleType = ImageView.ScaleType.FIT_CENTER
         }
 
-        root.addView(logo, LinearLayout.LayoutParams(150, 150))
+        root.addView(
+            logo,
+            LinearLayout.LayoutParams(dp(145), dp(145))
+        )
 
         val title = TextView(this).apply {
             text = "M I S T"
             textSize = 30f
             letterSpacing = 0.18f
             gravity = Gravity.CENTER
+            includeFontPadding = false
             setTextColor(Color.WHITE)
+
             typeface = Typeface.create(
-                "sans-serif-light", Typeface.NORMAL
+                "sans-serif-light",
+                Typeface.NORMAL
             )
         }
 
@@ -60,14 +70,17 @@ class MainActivity : Activity() {
             textSize = 10f
             letterSpacing = 0.22f
             gravity = Gravity.CENTER
+            includeFontPadding = false
             setTextColor(Color.rgb(130, 177, 239))
-            setPadding(0, 8, 0, 45)
+            setPadding(0, dp(8), 0, dp(30))
         }
 
         root.addView(subtitle)
 
         addAction(root, "ENABLE MIST KEYBOARD") {
-            startActivity(Intent(Settings.ACTION_INPUT_METHOD_SETTINGS))
+            startActivity(
+                Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)
+            )
         }
 
         addAction(root, "SELECT MIST KEYBOARD") {
@@ -96,19 +109,38 @@ class MainActivity : Activity() {
         val button = Button(this).apply {
             text = label
             textSize = 12f
+            isAllCaps = false
+            gravity = Gravity.CENTER
+            includeFontPadding = false
+            minHeight = dp(54)
+            minimumHeight = dp(54)
+
+            setPadding(dp(8), 0, dp(8), 0)
+
+            insetTop = 0
+            insetBottom = 0
+
             setTextColor(Color.WHITE)
+
             background = GradientDrawable().apply {
                 setColor(Color.rgb(16, 34, 62))
-                cornerRadius = 18f
-                setStroke(1, Color.rgb(65, 113, 174))
+                cornerRadius = dp(18).toFloat()
+                setStroke(
+                    dp(1),
+                    Color.rgb(65, 113, 174)
+                )
             }
+
             setOnClickListener { action() }
         }
 
         val params = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT, 58
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            dp(58)
         )
-        params.setMargins(0, 8, 0, 8)
+
+        params.setMargins(0, dp(7), 0, dp(7))
+
         root.addView(button, params)
     }
 }
