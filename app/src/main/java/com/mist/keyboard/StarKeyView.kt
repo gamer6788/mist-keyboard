@@ -4,7 +4,7 @@ package com.mist.keyboard
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.GradientDrawable
-import android.view.View
+import android.view.Gravity
 import android.widget.FrameLayout
 import android.widget.TextView
 import kotlin.random.Random
@@ -14,11 +14,14 @@ class StarKeyView(
     private val keyText: String
 ) : FrameLayout(context) {
 
-    private val stars = List(13) {
+    private fun dp(value: Int): Int =
+        (value * resources.displayMetrics.density).toInt()
+
+    private val stars = List(11) {
         Triple(
             Random.nextFloat(),
             Random.nextFloat(),
-            Random.nextFloat() * 1.1f + 0.3f
+            Random.nextFloat() * 1.2f + 0.4f
         )
     }
 
@@ -26,9 +29,11 @@ class StarKeyView(
 
     private val label = TextView(context).apply {
         text = keyText
-        textSize = 18f
-        gravity = android.view.Gravity.CENTER
+        textSize = if (keyText.length > 2) 13f else 20f
+        gravity = Gravity.CENTER
+        includeFontPadding = false
         setTextColor(Color.WHITE)
+
         typeface = Typeface.create(
             "sans-serif-medium",
             Typeface.NORMAL
@@ -43,8 +48,8 @@ class StarKeyView(
                 MistTheme.keyBottom
             )
         ).apply {
-            cornerRadius = 13f
-            setStroke(1, MistTheme.border)
+            cornerRadius = dp(13).toFloat()
+            setStroke(dp(1), MistTheme.border)
         }
 
         addView(
@@ -62,12 +67,13 @@ class StarKeyView(
         super.onDraw(canvas)
 
         stars.forEachIndexed { index, star ->
-            starPaint.color = when {
-                index % 5 == 0 -> MistTheme.blueGlow
-                else -> MistTheme.star
+            starPaint.color = if (index % 5 == 0) {
+                MistTheme.blueGlow
+            } else {
+                MistTheme.star
             }
 
-            starPaint.alpha = if (index % 3 == 0) 220 else 105
+            starPaint.alpha = if (index % 3 == 0) 210 else 85
 
             canvas.drawCircle(
                 width * star.first,
