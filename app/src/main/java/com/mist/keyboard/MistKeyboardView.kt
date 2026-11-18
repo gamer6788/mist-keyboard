@@ -20,6 +20,9 @@ class MistKeyboardView(
 
     private lateinit var keysContainer: LinearLayout
 
+    private fun dp(value: Int): Int =
+        (value * resources.displayMetrics.density).toInt()
+
     private val keyRows = listOf(
         listOf("q", "w", "e", "r", "t", "y", "u", "i", "o", "p"),
         listOf("a", "s", "d", "f", "g", "h", "j", "k", "l"),
@@ -37,7 +40,13 @@ class MistKeyboardView(
     init {
         orientation = VERTICAL
         gravity = Gravity.CENTER
-        setPadding(5, 7, 5, 9)
+
+        setPadding(
+            dp(5), dp(7),
+            dp(5), dp(9)
+        )
+
+        minimumHeight = dp(290)
 
         background = MistSpaceBackground()
 
@@ -74,12 +83,13 @@ class MistKeyboardView(
         val toolbar = LinearLayout(service).apply {
             orientation = HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            setPadding(5, 2, 5, 8)
+            setPadding(dp(5), dp(2), dp(5), dp(5))
         }
 
         val title = TextView(service).apply {
             text = "✦ M I S T"
             textSize = 15f
+            includeFontPadding = false
             setTextColor(Color.WHITE)
             typeface = Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
@@ -87,33 +97,29 @@ class MistKeyboardView(
 
         toolbar.addView(
             title,
-            LayoutParams(0, 42, 1f)
+            LayoutParams(0, dp(43), 1f)
         )
 
-        val fontButton = createToolbarButton("Aa") {
-            showFontStudio()
-        }
-
         toolbar.addView(
-            fontButton,
-            LayoutParams(48, 42)
+            createToolbarButton("Aa") {
+                showFontStudio()
+            },
+            LayoutParams(dp(48), dp(42))
         )
 
-        val shiftButton = createToolbarButton("⇧") {
-            isShifted = !isShifted
-            buildKeyboard()
-        }
-
         toolbar.addView(
-            shiftButton,
-            LayoutParams(42, 42)
+            createToolbarButton("⇧") {
+                isShifted = !isShifted
+                buildKeyboard()
+            },
+            LayoutParams(dp(44), dp(42))
         )
 
         addView(
             toolbar,
             LayoutParams(
                 LayoutParams.MATCH_PARENT,
-                48
+                dp(48)
             )
         )
     }
@@ -133,9 +139,7 @@ class MistKeyboardView(
                 12
             )
 
-            setOnClickListener {
-                action()
-            }
+            setOnClickListener { action() }
         }
     }
 
@@ -150,10 +154,8 @@ class MistKeyboardView(
 
         keys.forEach { key ->
 
-            // Display letters using the selected font.
-            val displayKey = fontManager.transform(key)
-
-            val keyView = StarKeyView(service, displayKey)
+            // Keep keyboard labels in normal readable characters.
+            val keyView = StarKeyView(service, key)
 
             val weight = when (key) {
                 "⇧", "⌫", "?123", "ABC", "↵" -> 1.35f
@@ -166,14 +168,18 @@ class MistKeyboardView(
                 keyView,
                 LayoutParams(
                     0,
-                    48,
+                    dp(54),
                     weight
                 ).apply {
-                    setMargins(2, 3, 2, 3)
+                    setMargins(
+                        dp(2),
+                        dp(3),
+                        dp(2),
+                        dp(3)
+                    )
                 }
             )
 
-            // Keep the original key value for keyboard actions.
             keyView.setOnClickListener {
                 handleKey(key)
             }
@@ -194,7 +200,6 @@ class MistKeyboardView(
             service.currentInputConnection ?: return
 
         when (key) {
-
             "⇧" -> {
                 isShifted = !isShifted
                 buildKeyboard()
@@ -241,7 +246,7 @@ class MistKeyboardView(
                     key
                 }
 
-                // Apply the selected MIST font to typed letters.
+                // Transform typed text, never the keyboard labels.
                 connection.commitText(
                     fontManager.transform(output),
                     1
@@ -255,7 +260,6 @@ class MistKeyboardView(
         }
     }
 
-    // FIRST STAGE: Choose a font family.
     private fun showFontStudio() {
         val families = FontFamily.values()
 
@@ -266,16 +270,12 @@ class MistKeyboardView(
         AlertDialog.Builder(service)
             .setTitle("✦ MIST FONT STUDIO")
             .setItems(names) { _, index ->
-
-                val selectedFamily = families[index]
-
-                showVariationSelector(selectedFamily)
+                showVariationSelector(families[index])
             }
             .setNegativeButton("Close", null)
             .show()
     }
 
-    // SECOND STAGE: Choose the font variation.
     private fun showVariationSelector(
         selectedFamily: FontFamily
     ) {
@@ -288,15 +288,11 @@ class MistKeyboardView(
         AlertDialog.Builder(service)
             .setTitle("${selectedFamily.displayName} — Variation")
             .setItems(names) { _, index ->
-
-                val selectedVariation = variations[index]
-
                 fontManager.select(
                     selectedFamily,
-                    selectedVariation
+                    variations[index]
                 )
 
-                // Refresh the keyboard with the new font.
                 buildKeyboard()
             }
             .setNegativeButton("Back") { _, _ ->
@@ -311,10 +307,10 @@ class MistKeyboardView(
     ): GradientDrawable {
         return GradientDrawable().apply {
             setColor(color)
-            cornerRadius = radius.toFloat()
+            cornerRadius = dp(radius).toFloat()
 
             setStroke(
-                1,
+                dp(1),
                 Color.argb(65, 120, 175, 255)
             )
         }
