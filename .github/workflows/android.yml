@@ -1,26 +1,30 @@
 
+name: MIST Keyboard Build Test
 
-      - name: Diagnose XML files
-        shell: bash
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Confirm GitHub Actions works
+        run: echo "MIST KEYBOARD WORKFLOW STARTED"
+
+      - name: Check repository
+        uses: actions/checkout@v4
+
+      - name: Check Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Confirm build environment
         run: |
-          python3 - <<'PY'
-          import pathlib
-          import xml.etree.ElementTree as ET
-
-          for path in pathlib.Path("app/src").rglob("*.xml"):
-              raw = path.read_bytes()
-              content = raw.decode("utf-8-sig")
-
-              print("\nFILE:", path)
-              print("RAW START:", repr(raw[:80]))
-              print("DECLARATIONS:", content.count("<?xml"))
-
-              for i, line in enumerate(content.splitlines(), 1):
-                  print(f"LINE {i}: {line!r}")
-
-              try:
-                  ET.fromstring(content)
-                  print("RESULT: VALID")
-              except ET.ParseError as e:
-                  print("RESULT: INVALID:", e)
-          PY
+          java -version
+          echo "GitHub Actions is working!"
