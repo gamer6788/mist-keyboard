@@ -5,11 +5,14 @@ import android.app.AlertDialog
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.os.Build
 import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.view.inputmethod.InputConnection
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.GridLayout
 
 class MistKeyboardView(
     private val service: MistKeyboardService,
@@ -18,11 +21,9 @@ class MistKeyboardView(
 
     private var isShifted = false
     private var isSymbols = false
+    private var showingEmoji = false
 
     private lateinit var keysContainer: LinearLayout
-
-    private fun dp(value: Int): Int =
-        (value * resources.displayMetrics.density).toInt()
 
     private val keyRows = listOf(
         listOf("q", "w", "e", "r", "t", "y", "u", "i", "o", "p"),
@@ -38,28 +39,58 @@ class MistKeyboardView(
         listOf("ABC", ",", "🌐", "space", ".", "↵")
     )
 
+    private val emojiCategories = linkedMapOf(
+        "😀" to listOf(
+            "😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣",
+            "😊", "😇", "🙂", "🙃", "😉", "😍", "🥰", "😘",
+            "😗", "😙", "😚", "😋", "😛", "😜", "🤪", "😎",
+            "🥳", "😭", "😢", "😡", "🤯", "🥺", "😴", "🤔"
+        ),
+        "👋" to listOf(
+            "👋", "🤚", "🖐️", "✋", "🖖", "👌", "🤌", "🤏",
+            "✌️", "🤞", "🫰", "🤟", "🤘", "🤙", "👈", "👉",
+            "👆", "👇", "☝️", "👍", "👎", "✊", "👊", "👏",
+            "🙌", "👐", "🤝", "🙏", "💪", "🫶", "🖕", "💅"
+        ),
+        "❤️" to listOf(
+            "❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍",
+            "🤎", "💔", "❣️", "💕", "💞", "💓", "💗", "💖",
+            "💘", "💝", "💟", "❤️‍🔥", "❤️‍🩹", "💌", "💋", "💍"
+        ),
+        "🐱" to listOf(
+            "🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼",
+            "🐻‍❄️", "🐨", "🐯", "🦁", "🐮", "🐷", "🐸", "🐵",
+            "🐔", "🐧", "🐦", "🦆", "🦅", "🦉", "🦇", "🐺",
+            "🐴", "🦄", "🐝", "🦋", "🐢", "🐍", "🐬", "🐳"
+        ),
+        "🍕" to listOf(
+            "🍏", "🍎", "🍐", "🍊", "🍋", "🍌", "🍉", "🍇",
+            "🍓", "🫐", "🍒", "🍑", "🥭", "🍍", "🥥", "🥝",
+            "🍅", "🥑", "🥕", "🌽", "🌶️", "🍔", "🍟", "🍕",
+            "🌭", "🍿", "🍩", "🍪", "🎂", "🍰", "☕", "🧋"
+        ),
+        "⚽" to listOf(
+            "⚽", "🏀", "🏈", "⚾", "🥎", "🎾", "🏐", "🏉",
+            "🥏", "🎱", "🏓", "🏸", "🥊", "🥋", "⛳", "🎯",
+            "🎮", "🎲", "🎹", "🎸", "🎧", "🎤", "🎬", "🎨"
+        )
+    )
+
+    private var selectedEmojiCategory = "😀"
+
+    private fun dp(value: Int): Int =
+        (value * resources.displayMetrics.density).toInt()
+
     init {
         orientation = VERTICAL
         gravity = Gravity.CENTER
 
-        setPadding(
-            dp(5), dp(7),
-            dp(5), dp(9)
-        )
-
-        minimumHeight = dp(290)
+        setPadding(dp(5), dp(7), dp(5), dp(9))
+        minimumHeight = dp(340)
 
         background = MistSpaceBackground()
 
         buildKeyboard()
-    }
-
-    private fun provideHapticFeedback(view: android.view.View) {
-        view.isHapticFeedbackEnabled = true
-
-        view.performHapticFeedback(
-            HapticFeedbackConstants.VIRTUAL_KEY
-        )
     }
 
     private fun buildKeyboard() {
@@ -81,10 +112,14 @@ class MistKeyboardView(
             )
         )
 
-        val rows = if (isSymbols) symbolRows else keyRows
+        if (showingEmoji) {
+            buildEmojiPanel()
+        } else {
+            val rows = if (isSymbols) symbolRows else keyRows
 
-        rows.forEachIndexed { index, row ->
-            addKeyRow(row, index)
+            rows.forEachIndexed { index, row ->
+                addKeyRow(row, index)
+            }
         }
     }
 
@@ -107,6 +142,14 @@ class MistKeyboardView(
         toolbar.addView(
             title,
             LayoutParams(0, dp(43), 1f)
+        )
+
+        toolbar.addView(
+            createToolbarButton("😊") {
+                showingEmoji = !showingEmoji
+                buildKeyboard()
+            },
+            LayoutParams(dp(44), dp(42))
         )
 
         toolbar.addView(
@@ -148,10 +191,10 @@ class MistKeyboardView(
                 12
             )
 
-            isHapticFeedbackEnabled = true
-
             setOnClickListener {
-                provideHapticFeedback(this)
+                performHapticFeedback(
+                    HapticFeedbackConstants.VIRTUAL_KEY
+                )
                 action()
             }
         }
@@ -167,8 +210,6 @@ class MistKeyboardView(
         }
 
         keys.forEach { key ->
-
-            // Keep keyboard labels in normal readable characters.
             val keyView = StarKeyView(service, key)
 
             val weight = when (key) {
@@ -182,7 +223,7 @@ class MistKeyboardView(
                 keyView,
                 LayoutParams(
                     0,
-                    dp(54),
+                    dp(60),
                     weight
                 ).apply {
                     setMargins(
@@ -194,10 +235,10 @@ class MistKeyboardView(
                 }
             )
 
-            keyView.isHapticFeedbackEnabled = true
-
             keyView.setOnClickListener {
-                provideHapticFeedback(keyView)
+                performHapticFeedback(
+                    HapticFeedbackConstants.VIRTUAL_KEY
+                )
                 handleKey(key)
             }
         }
@@ -213,18 +254,17 @@ class MistKeyboardView(
     }
 
     private fun handleKey(key: String) {
-        val connection: InputConnection =
+        val connection =
             service.currentInputConnection ?: return
 
         when (key) {
-
             "⇧" -> {
                 isShifted = !isShifted
                 buildKeyboard()
             }
 
             "⌫" -> {
-                connection.deleteSurroundingText(1, 0)
+                deleteCharacter(connection)
             }
 
             "?123" -> {
@@ -277,6 +317,201 @@ class MistKeyboardView(
         }
     }
 
+    /*
+     * Deletes a complete character where Android's ICU
+     * character boundary support is available.
+     */
+    private fun deleteCharacter(connection: InputConnection) {
+        val before = connection
+            .getTextBeforeCursor(100, 0)
+            ?.toString()
+            ?: return
+
+        if (before.isEmpty()) return
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val iterator =
+                android.icu.text.BreakIterator
+                    .getCharacterInstance()
+
+            iterator.setText(before)
+
+            val start = iterator.preceding(before.length)
+
+            if (start != android.icu.text.BreakIterator.DONE) {
+                connection.deleteSurroundingText(
+                    before.length - start,
+                    0
+                )
+                return
+            }
+        }
+
+        // Fallback for Android versions below API 24.
+        val lastCodePoint =
+            before.codePointBefore(before.length)
+
+        val charCount =
+            Character.charCount(lastCodePoint)
+
+        connection.deleteSurroundingText(
+            charCount,
+            0
+        )
+    }
+
+    private fun buildEmojiPanel() {
+        val categoryBar = LinearLayout(service).apply {
+            orientation = HORIZONTAL
+            gravity = Gravity.CENTER
+        }
+
+        emojiCategories.keys.forEach { category ->
+            val button = TextView(service).apply {
+                text = category
+                textSize = 21f
+                gravity = Gravity.CENTER
+                setTextColor(Color.WHITE)
+
+                background = if (
+                    selectedEmojiCategory == category
+                ) {
+                    roundedBackground(
+                        Color.rgb(32, 67, 112),
+                        10
+                    )
+                } else {
+                    roundedBackground(
+                        Color.TRANSPARENT,
+                        10
+                    )
+                }
+
+                setOnClickListener {
+                    selectedEmojiCategory = category
+                    buildKeyboard()
+                }
+            }
+
+            categoryBar.addView(
+                button,
+                LayoutParams(0, dp(42), 1f)
+            )
+        }
+
+        keysContainer.addView(
+            categoryBar,
+            LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                dp(44)
+            )
+        )
+
+        val scrollView = ScrollView(service).apply {
+            isFillViewport = true
+        }
+
+        val grid = GridLayout(service).apply {
+            columnCount = 8
+            useDefaultMargins = false
+            setPadding(dp(2), dp(4), dp(2), dp(4))
+        }
+
+        emojiCategories[selectedEmojiCategory]?.forEach { emoji ->
+            val emojiView = TextView(service).apply {
+                text = emoji
+                textSize = 27f
+                gravity = Gravity.CENTER
+                setTextColor(Color.WHITE)
+
+                setOnClickListener {
+                    performHapticFeedback(
+                        HapticFeedbackConstants.VIRTUAL_KEY
+                    )
+
+                    service.currentInputConnection
+                        ?.commitText(emoji, 1)
+                }
+            }
+
+            grid.addView(
+                emojiView,
+                GridLayout.LayoutParams().apply {
+                    width = 0
+                    height = dp(48)
+                    columnSpec = GridLayout.spec(
+                        GridLayout.UNDEFINED,
+                        1f
+                    )
+                }
+            )
+        }
+
+        scrollView.addView(grid)
+
+        keysContainer.addView(
+            scrollView,
+            LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                0,
+                1f
+            )
+        )
+
+        val bottomBar = LinearLayout(service).apply {
+            orientation = HORIZONTAL
+            gravity = Gravity.CENTER
+        }
+
+        bottomBar.addView(
+            createEmojiAction("ABC") {
+                showingEmoji = false
+                buildKeyboard()
+            },
+            LayoutParams(dp(75), dp(42))
+        )
+
+        bottomBar.addView(
+            createEmojiAction("⌫") {
+                service.currentInputConnection
+                    ?.let { deleteCharacter(it) }
+            },
+            LayoutParams(dp(75), dp(42))
+        )
+
+        keysContainer.addView(
+            bottomBar,
+            LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                dp(46)
+            )
+        )
+    }
+
+    private fun createEmojiAction(
+        label: String,
+        action: () -> Unit
+    ): TextView {
+        return TextView(service).apply {
+            text = label
+            textSize = 17f
+            gravity = Gravity.CENTER
+            setTextColor(Color.WHITE)
+
+            background = roundedBackground(
+                Color.rgb(16, 34, 62),
+                12
+            )
+
+            setOnClickListener {
+                performHapticFeedback(
+                    HapticFeedbackConstants.VIRTUAL_KEY
+                )
+                action()
+            }
+        }
+    }
+
     private fun showFontStudio() {
         val families = FontFamily.values()
 
@@ -303,7 +538,9 @@ class MistKeyboardView(
         }.toTypedArray()
 
         AlertDialog.Builder(service)
-            .setTitle("${selectedFamily.displayName} — Variation")
+            .setTitle(
+                "${selectedFamily.displayName} — Variation"
+            )
             .setItems(names) { _, index ->
                 fontManager.select(
                     selectedFamily,
