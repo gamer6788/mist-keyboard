@@ -39,7 +39,6 @@ class MistKeyboardView(
         gravity = Gravity.CENTER
         setPadding(5, 7, 5, 9)
 
-        // FIXED: MistSpaceBackground has a zero-argument constructor.
         background = MistSpaceBackground()
 
         buildKeyboard()
@@ -128,11 +127,15 @@ class MistKeyboardView(
             textSize = 19f
             setTextColor(MistTheme.star)
             gravity = Gravity.CENTER
+
             background = roundedBackground(
                 Color.argb(90, 35, 75, 125),
                 12
             )
-            setOnClickListener { action() }
+
+            setOnClickListener {
+                action()
+            }
         }
     }
 
@@ -146,7 +149,11 @@ class MistKeyboardView(
         }
 
         keys.forEach { key ->
-            val keyView = StarKeyView(service, key)
+
+            // Display letters using the selected font.
+            val displayKey = fontManager.transform(key)
+
+            val keyView = StarKeyView(service, displayKey)
 
             val weight = when (key) {
                 "⇧", "⌫", "?123", "ABC", "↵" -> 1.35f
@@ -159,13 +166,14 @@ class MistKeyboardView(
                 keyView,
                 LayoutParams(
                     0,
-                    if (rowIndex == 3) 48 else 48,
+                    48,
                     weight
                 ).apply {
                     setMargins(2, 3, 2, 3)
                 }
             )
 
+            // Keep the original key value for keyboard actions.
             keyView.setOnClickListener {
                 handleKey(key)
             }
@@ -186,6 +194,7 @@ class MistKeyboardView(
             service.currentInputConnection ?: return
 
         when (key) {
+
             "⇧" -> {
                 isShifted = !isShifted
                 buildKeyboard()
@@ -232,7 +241,11 @@ class MistKeyboardView(
                     key
                 }
 
-                connection.commitText(output, 1)
+                // Apply the selected MIST font to typed letters.
+                connection.commitText(
+                    fontManager.transform(output),
+                    1
+                )
 
                 if (isShifted && !isSymbols) {
                     isShifted = false
@@ -242,17 +255,53 @@ class MistKeyboardView(
         }
     }
 
+    // FIRST STAGE: Choose a font family.
     private fun showFontStudio() {
-        val styles = FontStyles.allStyles
+        val families = FontFamily.values()
 
-        val names = styles.map { it.name }.toTypedArray()
+        val names = families.map {
+            it.displayName
+        }.toTypedArray()
 
         AlertDialog.Builder(service)
-            .setTitle("MIST Font Studio")
+            .setTitle("✦ MIST FONT STUDIO")
             .setItems(names) { _, index ->
-                fontManager.selectStyle(styles[index])
+
+                val selectedFamily = families[index]
+
+                showVariationSelector(selectedFamily)
             }
             .setNegativeButton("Close", null)
+            .show()
+    }
+
+    // SECOND STAGE: Choose the font variation.
+    private fun showVariationSelector(
+        selectedFamily: FontFamily
+    ) {
+        val variations = FontVariation.values()
+
+        val names = variations.map {
+            it.displayName
+        }.toTypedArray()
+
+        AlertDialog.Builder(service)
+            .setTitle("${selectedFamily.displayName} — Variation")
+            .setItems(names) { _, index ->
+
+                val selectedVariation = variations[index]
+
+                fontManager.select(
+                    selectedFamily,
+                    selectedVariation
+                )
+
+                // Refresh the keyboard with the new font.
+                buildKeyboard()
+            }
+            .setNegativeButton("Back") { _, _ ->
+                showFontStudio()
+            }
             .show()
     }
 
@@ -263,6 +312,7 @@ class MistKeyboardView(
         return GradientDrawable().apply {
             setColor(color)
             cornerRadius = radius.toFloat()
+
             setStroke(
                 1,
                 Color.argb(65, 120, 175, 255)
