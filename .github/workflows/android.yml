@@ -1,27 +1,26 @@
 
+
       - name: Diagnose XML files
         shell: bash
         run: |
           python3 - <<'PY'
           import pathlib
+          import xml.etree.ElementTree as ET
 
-          files = [
-              pathlib.Path("app/src/main/AndroidManifest.xml"),
-              pathlib.Path("app/src/main/res/xml/method.xml")
-          ]
-
-          for path in files:
-              print("\n" + "=" * 60)
-              print("FILE:", path)
-              print("=" * 60)
-
+          for path in pathlib.Path("app/src").rglob("*.xml"):
               raw = path.read_bytes()
-              print("FIRST 100 BYTES:", repr(raw[:100]))
-
               content = raw.decode("utf-8-sig")
 
-              for number, line in enumerate(content.splitlines(), 1):
-                  print(f"LINE {number}: {line!r}")
+              print("\nFILE:", path)
+              print("RAW START:", repr(raw[:80]))
+              print("DECLARATIONS:", content.count("<?xml"))
 
-              print("XML DECLARATIONS:", content.count("<?xml"))
+              for i, line in enumerate(content.splitlines(), 1):
+                  print(f"LINE {i}: {line!r}")
+
+              try:
+                  ET.fromstring(content)
+                  print("RESULT: VALID")
+              except ET.ParseError as e:
+                  print("RESULT: INVALID:", e)
           PY
