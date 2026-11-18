@@ -1,5 +1,6 @@
 
       - name: Diagnose XML files
+        shell: bash
         run: |
           python3 - <<'PY'
           import pathlib
@@ -15,7 +16,6 @@
               print("=" * 60)
 
               raw = path.read_bytes()
-
               print("FIRST 100 BYTES:", repr(raw[:100]))
 
               content = raw.decode("utf-8-sig")
