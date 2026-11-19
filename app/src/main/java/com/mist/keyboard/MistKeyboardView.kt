@@ -1,7 +1,6 @@
 
 package com.mist.keyboard
 
-import android.app.AlertDialog
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
@@ -22,6 +21,8 @@ class MistKeyboardView(
     private var isSymbols = false
     private var showingEmoji = false
     private var showingFavorites = false
+    private var showingFontStudio = false
+    private var selectedFontFamily: FontFamily? = null
 
     private lateinit var keysContainer: LinearLayout
 
@@ -32,14 +33,14 @@ class MistKeyboardView(
         listOf("q", "w", "e", "r", "t", "y", "u", "i", "o", "p"),
         listOf("a", "s", "d", "f", "g", "h", "j", "k", "l"),
         listOf("⇧", "z", "x", "c", "v", "b", "n", "m", "⌫"),
-        listOf("123", ",", "🌐", "space", ".", "↵")
+        listOf("123", ",", "😊", "🌐", "space", ".", "↵")
     )
 
     private val symbolRows = listOf(
         listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0"),
         listOf("@", "#", "$", "%", "&", "-", "+", "(", ")"),
         listOf("=", "*", "\"", "'", ":", ";", "!", "?", "⌫"),
-        listOf("ABC", ",", "🌐", "space", ".", "↵")
+        listOf("ABC", ",", "😊", "🌐", "space", ".", "↵")
     )
 
     private fun dp(value: Int): Int =
@@ -49,7 +50,7 @@ class MistKeyboardView(
         orientation = VERTICAL
         gravity = Gravity.CENTER
 
-        setPadding(dp(5), dp(7), dp(5), dp(9))
+        setPadding(dp(4), dp(5), dp(4), dp(7))
         minimumHeight = dp(340)
 
         background = MistSpaceBackground()
@@ -77,6 +78,7 @@ class MistKeyboardView(
         )
 
         when {
+            showingFontStudio -> buildFontStudioPanel()
             showingFavorites -> buildFavoritesPanel()
             showingEmoji -> buildEmojiPanel()
             else -> {
@@ -93,7 +95,7 @@ class MistKeyboardView(
         val toolbar = LinearLayout(service).apply {
             orientation = HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            setPadding(dp(5), dp(2), dp(5), dp(5))
+            setPadding(dp(3), dp(1), dp(3), dp(5))
         }
 
         val title = TextView(service).apply {
@@ -102,55 +104,42 @@ class MistKeyboardView(
             includeFontPadding = false
             setTextColor(Color.WHITE)
             typeface = Typeface.DEFAULT_BOLD
-            gravity = Gravity.CENTER
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(8), 0, 0, 0)
         }
 
         toolbar.addView(
             title,
-            LayoutParams(0, dp(43), 1f)
+            LayoutParams(0, dp(40), 1f)
         )
 
-        toolbar.addView(
-            createToolbarButton("😊") {
-                showingEmoji = !showingEmoji
-                showingFavorites = false
-                buildKeyboard()
-            },
-            LayoutParams(dp(44), dp(42))
-        )
-
-        if (showingEmoji) {
+        if (showingEmoji || showingFavorites) {
             toolbar.addView(
                 createToolbarButton("★") {
                     showingFavorites = !showingFavorites
+                    showingEmoji = !showingFavorites
                     buildKeyboard()
                 },
-                LayoutParams(dp(44), dp(42))
+                LayoutParams(dp(42), dp(39))
             )
         }
 
         toolbar.addView(
             createToolbarButton("Aa") {
-                showFontStudio()
+                showingEmoji = false
+                showingFavorites = false
+                showingFontStudio = true
+                selectedFontFamily = null
+                buildKeyboard()
             },
-            LayoutParams(dp(48), dp(42))
+            LayoutParams(dp(46), dp(39))
         )
-
-        if (!showingEmoji) {
-            toolbar.addView(
-                createToolbarButton("⇧") {
-                    isShifted = !isShifted
-                    buildKeyboard()
-                },
-                LayoutParams(dp(44), dp(42))
-            )
-        }
 
         addView(
             toolbar,
             LayoutParams(
                 LayoutParams.MATCH_PARENT,
-                dp(48)
+                dp(43)
             )
         )
     }
@@ -161,19 +150,17 @@ class MistKeyboardView(
     ): TextView {
         return TextView(service).apply {
             this.text = text
-            textSize = 19f
+            textSize = 18f
             setTextColor(MistTheme.star)
             gravity = Gravity.CENTER
 
             background = roundedBackground(
                 Color.argb(90, 35, 75, 125),
-                12
+                11
             )
 
             setOnClickListener {
-                performHapticFeedback(
-                    HapticFeedbackConstants.VIRTUAL_KEY
-                )
+                tapFeedback()
                 action()
             }
         }
@@ -189,15 +176,13 @@ class MistKeyboardView(
         }
 
         keys.forEach { key ->
-            val keyView = StarKeyView(
-                service,
-                key
-            )
+            val keyView = StarKeyView(service, key)
 
             val weight = when (key) {
                 "⇧", "⌫", "123", "ABC", "↵" -> 1.35f
-                "space" -> 4.5f
-                "🌐" -> 1.15f
+                "space" -> 3.8f
+                "🌐", "😊" -> 1.05f
+                "," , "." -> 0.8f
                 else -> 1f
             }
 
@@ -205,7 +190,7 @@ class MistKeyboardView(
                 keyView,
                 LayoutParams(
                     0,
-                    dp(60),
+                    LayoutParams.MATCH_PARENT,
                     weight
                 ).apply {
                     setMargins(
@@ -218,9 +203,7 @@ class MistKeyboardView(
             )
 
             keyView.setOnClickListener {
-                performHapticFeedback(
-                    HapticFeedbackConstants.VIRTUAL_KEY
-                )
+                tapFeedback()
                 handleKey(key)
             }
         }
@@ -235,6 +218,12 @@ class MistKeyboardView(
         )
     }
 
+    private fun tapFeedback() {
+        performHapticFeedback(
+            HapticFeedbackConstants.VIRTUAL_KEY
+        )
+    }
+
     private fun handleKey(key: String) {
         val connection =
             service.currentInputConnection ?: return
@@ -245,9 +234,7 @@ class MistKeyboardView(
                 buildKeyboard()
             }
 
-            "⌫" -> {
-                deleteCharacter(connection)
-            }
+            "⌫" -> deleteCharacter(connection)
 
             "123" -> {
                 isSymbols = true
@@ -259,25 +246,22 @@ class MistKeyboardView(
                 buildKeyboard()
             }
 
-            "space" -> {
-                connection.commitText(" ", 1)
+            "😊" -> {
+                showingEmoji = true
+                showingFavorites = false
+                showingFontStudio = false
+                buildKeyboard()
             }
 
-            "↵" -> {
-                connection.commitText("\n", 1)
-            }
+            "space" -> connection.commitText(" ", 1)
 
-            "🌐" -> {
-                service.switchToNextInputMethod(false)
-            }
+            "↵" -> connection.commitText("\n", 1)
 
-            "," -> {
-                connection.commitText(",", 1)
-            }
+            "🌐" -> service.switchToNextInputMethod(false)
 
-            "." -> {
-                connection.commitText(".", 1)
-            }
+            "," -> connection.commitText(",", 1)
+
+            "." -> connection.commitText(".", 1)
 
             else -> {
                 val output = if (isShifted && !isSymbols) {
@@ -286,10 +270,11 @@ class MistKeyboardView(
                     key
                 }
 
-                connection.commitText(
-                    fontManager.transform(output),
-                    1
-                )
+                val transformed = runCatching {
+                    fontManager.transform(output)
+                }.getOrDefault(output)
+
+                connection.commitText(transformed, 1)
 
                 if (isShifted && !isSymbols) {
                     isShifted = false
@@ -397,16 +382,15 @@ class MistKeyboardView(
             )
         )
 
-        val back = createEmojiAction("EMOJI") {
-            showingFavorites = false
-            buildKeyboard()
-        }
-
         keysContainer.addView(
-            back,
+            createEmojiAction("EMOJI") {
+                showingFavorites = false
+                showingEmoji = true
+                buildKeyboard()
+            },
             LayoutParams(
                 LayoutParams.MATCH_PARENT,
-                dp(44)
+                dp(42)
             )
         )
     }
@@ -420,9 +404,7 @@ class MistKeyboardView(
         connection.commitText(finalEmoji, 1)
         recentStore.add(finalEmoji)
 
-        performHapticFeedback(
-            HapticFeedbackConstants.VIRTUAL_KEY
-        )
+        tapFeedback()
     }
 
     private fun createEmojiAction(
@@ -441,55 +423,156 @@ class MistKeyboardView(
             )
 
             setOnClickListener {
-                performHapticFeedback(
-                    HapticFeedbackConstants.VIRTUAL_KEY
-                )
+                tapFeedback()
                 action()
             }
         }
     }
 
-    private fun showFontStudio() {
-        val families = FontFamily.values()
+    // FONT STUDIO
 
-        val names = families.map {
-            it.displayName
-        }.toTypedArray()
-
-        AlertDialog.Builder(service)
-            .setTitle("✦ MIST FONT STUDIO")
-            .setItems(names) { _, index ->
-                showVariationSelector(families[index])
+    private fun buildFontStudioPanel() {
+        val heading = TextView(service).apply {
+            text = if (selectedFontFamily == null) {
+                "✦ MIST FONT STUDIO"
+            } else {
+                "✦ ${selectedFontFamily!!.displayName}"
             }
-            .setNegativeButton("Close", null)
-            .show()
+
+            textSize = 16f
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(Color.WHITE)
+            gravity = Gravity.CENTER
+        }
+
+        keysContainer.addView(
+            heading,
+            LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                dp(48)
+            )
+        )
+
+        val scroll = ScrollView(service).apply {
+            isFillViewport = true
+        }
+
+        val options = LinearLayout(service).apply {
+            orientation = VERTICAL
+            setPadding(dp(8), dp(4), dp(8), dp(8))
+        }
+
+        if (selectedFontFamily == null) {
+            FontFamily.values().forEach { family ->
+                addFontOption(
+                    options,
+                    family.displayName,
+                    "Choose font family"
+                ) {
+                    selectedFontFamily = family
+                    buildKeyboard()
+                }
+            }
+        } else {
+            FontVariation.values().forEach { variation ->
+                addFontOption(
+                    options,
+                    variation.displayName,
+                    "Select this style"
+                ) {
+                    runCatching {
+                        fontManager.select(
+                            selectedFontFamily!!,
+                            variation
+                        )
+                    }.onSuccess {
+                        showingFontStudio = false
+                        selectedFontFamily = null
+                        buildKeyboard()
+                    }
+                }
+            }
+        }
+
+        scroll.addView(options)
+
+        keysContainer.addView(
+            scroll,
+            LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                0,
+                1f
+            )
+        )
+
+        val backLabel =
+            if (selectedFontFamily == null) "BACK TO KEYBOARD"
+            else "BACK TO FONTS"
+
+        keysContainer.addView(
+            createEmojiAction(backLabel) {
+                if (selectedFontFamily != null) {
+                    selectedFontFamily = null
+                    buildKeyboard()
+                } else {
+                    showingFontStudio = false
+                    buildKeyboard()
+                }
+            },
+            LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                dp(44)
+            )
+        )
     }
 
-    private fun showVariationSelector(
-        selectedFamily: FontFamily
+    private fun addFontOption(
+        parent: LinearLayout,
+        name: String,
+        description: String,
+        action: () -> Unit
     ) {
-        val variations = FontVariation.values()
+        val option = LinearLayout(service).apply {
+            orientation = VERTICAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(15), dp(8), dp(12), dp(8))
 
-        val names = variations.map {
-            it.displayName
-        }.toTypedArray()
-
-        AlertDialog.Builder(service)
-            .setTitle(
-                "${selectedFamily.displayName} — Variation"
+            background = roundedBackground(
+                Color.argb(100, 22, 48, 83),
+                12
             )
-            .setItems(names) { _, index ->
-                fontManager.select(
-                    selectedFamily,
-                    variations[index]
-                )
 
-                buildKeyboard()
+            setOnClickListener {
+                tapFeedback()
+                action()
             }
-            .setNegativeButton("Back") { _, _ ->
-                showFontStudio()
+        }
+
+        val title = TextView(service).apply {
+            text = name
+            textSize = 16f
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(Color.WHITE)
+        }
+
+        val subtitle = TextView(service).apply {
+            text = description
+            textSize = 11f
+            setTextColor(Color.LTGRAY)
+        }
+
+        option.addView(title)
+        option.addView(subtitle)
+
+        parent.addView(
+            option,
+            LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                dp(55)
+            ).apply {
+                setMargins(0, dp(3), 0, dp(3))
             }
-            .show()
+        )
     }
 
     private fun roundedBackground(
