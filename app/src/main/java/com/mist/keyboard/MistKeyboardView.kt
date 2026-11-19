@@ -5,7 +5,10 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.HapticFeedbackConstants
 import android.view.inputmethod.InputConnection
 import android.widget.LinearLayout
@@ -19,15 +22,33 @@ class MistKeyboardView(
 
     private var isShifted = false
     private var isSymbols = false
+
     private var showingEmoji = false
     private var showingFavorites = false
     private var showingFontStudio = false
+    private var showingClipboard = false
+
     private var selectedFontFamily: FontFamily? = null
 
     private lateinit var keysContainer: LinearLayout
 
     private val recentStore = EmojiRecentStore(service)
     private val skinToneManager = EmojiSkinToneManager(service)
+
+    private val deleteHandler = Handler(Looper.getMainLooper())
+    private var deleteHasRepeated = false
+
+    private val deleteRunnable = object : Runnable {
+        override fun run() {
+            val connection =
+                service.currentInputConnection ?: return
+
+            deleteCharacter(connection)
+            deleteHasRepeated = true
+
+            deleteHandler.postDelayed(this, 65)
+        }
+    }
 
     private val keyRows = listOf(
         listOf("q", "w", "e", "r", "t", "y", "u", "i", "o", "p"),
@@ -79,8 +100,13 @@ class MistKeyboardView(
 
         when {
             showingFontStudio -> buildFontStudioPanel()
+
+            showingClipboard -> buildClipboardPanel()
+
             showingFavorites -> buildFavoritesPanel()
+
             showingEmoji -> buildEmojiPanel()
+
             else -> {
                 val rows = if (isSymbols) symbolRows else keyRows
 
@@ -118,6 +144,8 @@ class MistKeyboardView(
                 createToolbarButton("★") {
                     showingFavorites = !showingFavorites
                     showingEmoji = !showingFavorites
+                    showingClipboard = false
+                    showingFontStudio = false
                     buildKeyboard()
                 },
                 LayoutParams(dp(42), dp(39))
@@ -125,9 +153,22 @@ class MistKeyboardView(
         }
 
         toolbar.addView(
+            createToolbarButton("▤") {
+                showingEmoji = false
+                showingFavorites = false
+                showingFontStudio = false
+                showingClipboard = true
+                selectedFontFamily = null
+                buildKeyboard()
+            },
+            LayoutParams(dp(42), dp(39))
+        )
+
+        toolbar.addView(
             createToolbarButton("Aa") {
                 showingEmoji = false
                 showingFavorites = false
+                showingClipboard = false
                 showingFontStudio = true
                 selectedFontFamily = null
                 buildKeyboard()
@@ -182,7 +223,7 @@ class MistKeyboardView(
                 "⇧", "⌫", "123", "ABC", "↵" -> 1.35f
                 "space" -> 3.8f
                 "🌐", "😊" -> 1.05f
-                "," , "." -> 0.8f
+                ",", "." -> 0.8f
                 else -> 1f
             }
 
@@ -202,9 +243,13 @@ class MistKeyboardView(
                 }
             )
 
-            keyView.setOnClickListener {
-                tapFeedback()
-                handleKey(key)
+            if (key == "⌫") {
+                attachHoldToDelete(keyView)
+            } else {
+                keyView.setOnClickListener {
+                    tapFeedback()
+                    handleKey(key)
+                }
             }
         }
 
@@ -216,6 +261,52 @@ class MistKeyboardView(
                 1f
             )
         )
+    }
+
+    // HOLD-TO-DELETE
+
+    private fun attachHoldToDelete(view: StarKeyView) {
+        view.setOnTouchListener { _, event ->
+
+            when (event.action) {
+
+                MotionEvent.ACTION_DOWN -> {
+                    deleteHasRepeated = false
+
+                    view.isPressed = true
+                    tapFeedback()
+
+                    deleteHandler.postDelayed(
+                        deleteRunnable,
+                        400
+                    )
+
+                    true
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    deleteHandler.removeCallbacks(deleteRunnable)
+
+                    view.isPressed = false
+
+                    if (!deleteHasRepeated) {
+                        service.currentInputConnection?.let {
+                            deleteCharacter(it)
+                        }
+                    }
+
+                    true
+                }
+
+                MotionEvent.ACTION_CANCEL -> {
+                    deleteHandler.removeCallbacks(deleteRunnable)
+                    view.isPressed = false
+                    true
+                }
+
+                else -> true
+            }
+        }
     }
 
     private fun tapFeedback() {
@@ -250,6 +341,7 @@ class MistKeyboardView(
                 showingEmoji = true
                 showingFavorites = false
                 showingFontStudio = false
+                showingClipboard = false
                 buildKeyboard()
             }
 
@@ -318,6 +410,8 @@ class MistKeyboardView(
             0
         )
     }
+
+    // EMOJI PANEL
 
     private fun buildEmojiPanel() {
         val picker = EmojiPickerView(
@@ -575,6 +669,36 @@ class MistKeyboardView(
         )
     }
 
+    // CLIPBOARD PANEL
+
+    private fun buildClipboardPanel() {
+        val panel = ClipboardPanelView(
+            context = service,
+            clipboardManager = service.clipboardHistoryManager,
+            onTextSelected = { text ->
+                service.currentInputConnection?.commitText(
+                    text,
+                    1
+                )
+
+                showingClipboard = false
+                buildKeyboard()
+            },
+            onBack = {
+                showingClipboard = false
+                buildKeyboard()
+            }
+        )
+
+        keysContainer.addView(
+            panel,
+            LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                LayoutParams.MATCH_PARENT
+            )
+        )
+    }
+
     private fun roundedBackground(
         color: Int,
         radius: Int
@@ -588,5 +712,10 @@ class MistKeyboardView(
                 Color.argb(65, 120, 175, 255)
             )
         }
+    }
+
+    override fun onDetachedFromWindow() {
+        deleteHandler.removeCallbacks(deleteRunnable)
+        super.onDetachedFromWindow()
     }
 }
