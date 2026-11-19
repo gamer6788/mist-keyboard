@@ -6,7 +6,7 @@ import android.view.View
 import android.view.inputmethod.InputConnection
 
 class EmojiKeyboardIntegration(
-    context: Context,
+    private val context: Context,
     private val getInputConnection: () -> InputConnection?,
     private val onKeyboardChanged: (View) -> Unit,
     private val onEmojiPanelClosed: () -> Unit
