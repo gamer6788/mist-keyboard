@@ -57,7 +57,12 @@ class StarKeyView(
             Typeface.NORMAL
         )
 
-        setPadding(dp(2), dp(3), dp(2), dp(3))
+        setPadding(
+            dp(2),
+            dp(3),
+            dp(2),
+            dp(3)
+        )
     }
 
     init {
@@ -120,10 +125,10 @@ class StarKeyView(
         canvas.drawRoundRect(
             inset,
             inset,
-            width - inset,
-            height - inset,
-            dp(12),
-            dp(12),
+            width.toFloat() - inset,
+            height.toFloat() - inset,
+            dp(12f),
+            dp(12f),
             borderPaint
         )
     }
