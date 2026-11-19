@@ -77,7 +77,7 @@ class EmojiPanelAdapter(
             grid.addView(
                 emptyView,
                 GridLayout.LayoutParams().apply {
-                    width = LayoutParams.MATCH_PARENT
+                    width = android.view.ViewGroup.LayoutParams.MATCH_PARENT
                     height = dp(80)
                     columnSpec = GridLayout.spec(0, columns)
                 }
