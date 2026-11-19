@@ -169,7 +169,7 @@ class EmojiPickerView(
         searchInput = EditText(context).apply {
             hint = "Search emojis..."
             textSize = 14f
-            singleLine = true
+            maxLines = 1
             setTextColor(textColor)
             setHintTextColor(Color.LTGRAY)
             background = null
