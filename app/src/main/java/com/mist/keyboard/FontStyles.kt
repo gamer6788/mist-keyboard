@@ -28,43 +28,95 @@ object FontStyles {
     private const val NORMAL_LOWER =
         "abcdefghijklmnopqrstuvwxyz"
 
+    private const val SANS_UPPER =
+        "𝖠𝖡𝖢𝖣𝖤𝖥𝖦𝖧𝖨𝖩𝖪𝖫𝖬𝖭𝖮𝖯𝖰𝖱𝖲𝖳𝖴𝖵𝖶𝖷𝖸𝖹"
+
+    private const val SANS_LOWER =
+        "𝖺𝖻𝖼𝖽𝖾𝖿𝗀𝗁𝗂𝗃𝗄𝗅𝗆𝗇𝗈𝗉𝗊𝗋𝗌𝗍𝗎𝗏𝗐𝗑𝗒𝗓"
+
+    private const val BOLD_UPPER =
+        "𝗔𝗕𝗖𝗗𝗘𝗙𝗚𝗛𝗜𝗝𝗞𝗟𝗠𝗡𝗢𝗣𝗤𝗥𝗦𝗧𝗨𝗩𝗪𝗫𝗬𝗭"
+
+    private const val BOLD_LOWER =
+        "𝗮𝗯𝗰𝗱𝗲𝗳𝗴𝗵𝗶𝗷𝗸𝗹𝗺𝗻𝗼𝗽𝗾𝗿𝘀𝘁𝘂𝘃𝘄𝘅𝘆𝘇"
+
+    private const val ITALIC_UPPER =
+        "𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡"
+
+    private const val ITALIC_LOWER =
+        "𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻"
+
+    private const val BOLD_ITALIC_UPPER =
+        "𝘼𝘽𝘾𝘿𝙀𝙁𝙂𝙃𝙄𝙅𝙆𝙇𝙈𝙉𝙊𝙋𝙌𝙍𝙎𝙏𝙐𝙑𝙒𝙓𝙔𝙕"
+
+    private const val BOLD_ITALIC_LOWER =
+        "𝙖𝙗𝙘𝙙𝙚𝙛𝙜𝙝𝙞𝙟𝙠𝙡𝙢𝙣𝙤𝙥𝙦𝙧𝙨𝙩𝙪𝙫𝙬𝙭𝙮𝙯"
+
+    private const val FRAKTUR_UPPER =
+        "𝔄𝔅ℭ𝔇𝔈𝔉𝔊ℌℑ𝔍𝔎𝔏𝔐𝔑𝔒𝔓𝔔ℜ𝔖𝔗𝔘𝔙𝔚𝔛𝔜ℨ"
+
+    private const val FRAKTUR_LOWER =
+        "𝔞𝔟𝔠𝔡𝔢𝔣𝔤𝔥𝔦𝔧𝔨𝔩𝔪𝔫𝔬𝔭𝔮𝔯𝔰𝔱𝔲𝔳𝔴𝔵𝔶𝔷"
+
+    private const val BOLD_FRAKTUR_UPPER =
+        "𝕬𝕭𝕮𝕯𝕰𝕱𝕲𝕳𝕴𝕵𝕶𝕷𝕸𝕹𝕺𝕻𝕼𝕽𝕾𝕿𝖀𝖁𝖂𝖃𝖄𝖅"
+
+    private const val BOLD_FRAKTUR_LOWER =
+        "𝖆𝖇𝖈𝖉𝖊𝖋𝖌𝖍𝖎𝖏𝖐𝖑𝖒𝖓𝖔𝖕𝖖𝖗𝖘𝖙𝖚𝖛𝖜𝖝𝖞𝖟"
+
+    private const val SMALL_CAPS_LOWER =
+        "ᴀʙᴄᴅᴇғɢʜɪᴊᴋʟᴍɴᴏᴘǫʀsᴛᴜᴠᴡxʏᴢ"
+
+    private const val MONO_UPPER =
+        "𝙰𝙱𝙲𝙳𝙴𝙵𝙶𝙷𝙸𝙹𝙺𝙻𝙼𝙽𝙾𝙿𝚀𝚁𝚂𝚃𝚄𝚅𝚆𝚇𝚈𝚉"
+
+    private const val MONO_LOWER =
+        "𝚊𝚋𝚌𝚍𝚎𝚏𝚐𝚑𝚒𝚓𝚔𝚕𝚖𝚗𝚘𝚙𝚚𝚛𝚜𝚝𝚞𝚟𝚠𝚡𝚢𝚣"
+
+    private const val DOUBLE_UPPER =
+        "𝔸𝔹ℂ𝔻𝔼𝔽𝔾ℍ𝕀𝕁𝕂𝕃𝕄ℕ𝕆ℙℚℝ𝕊𝕋𝕌𝕍𝕎𝕏𝕐ℤ"
+
+    private const val DOUBLE_LOWER =
+        "𝕒𝕓𝕔𝕕𝕖𝕗𝕘𝕙𝕚𝕛𝕜𝕝𝕞𝕟𝕠𝕡𝕢𝕣𝕤𝕥𝕦𝕧𝕨𝕩𝕪𝕫"
+
+    private fun codePoints(value: String): IntArray {
+        val result = ArrayList<Int>()
+        var index = 0
+
+        while (index < value.length) {
+            val point = Character.codePointAt(value, index)
+            result.add(point)
+            index += Character.charCount(point)
+        }
+
+        return result.toIntArray()
+    }
+
     private fun convert(
         input: String,
         upper: String,
-        lower: String,
-        digits: String = "0123456789"
+        lower: String
     ): String {
-
-        // Read complete Unicode code points, not individual UTF-16 units.
-        val upperPoints = upper.codePoints().toArray()
-        val lowerPoints = lower.codePoints().toArray()
-        val digitPoints = digits.codePoints().toArray()
+        val upperPoints = codePoints(upper)
+        val lowerPoints = codePoints(lower)
 
         val result = StringBuilder()
+        var index = 0
 
-        input.codePoints().forEach { cp ->
+        while (index < input.length) {
+            val point = Character.codePointAt(input, index)
 
-            val index = when (cp) {
-                in 65..90 -> cp - 65
-                in 97..122 -> cp - 97
-                in 48..57 -> cp - 48
-                else -> -1
+            val replacement = when (point) {
+                in 65..90 -> upperPoints.getOrNull(point - 65) ?: point
+                in 97..122 -> lowerPoints.getOrNull(point - 97) ?: point
+                else -> point
             }
 
-            val replacement = when {
-                cp in 65..90 && index < upperPoints.size ->
-                    upperPoints[index]
+            result.append(
+                String(Character.toChars(replacement))
+            )
 
-                cp in 97..122 && index < lowerPoints.size ->
-                    lowerPoints[index]
-
-                cp in 48..57 && index < digitPoints.size ->
-                    digitPoints[index]
-
-                else -> cp
-            }
-
-            result.append(String(Character.toChars(replacement)))
+            index += Character.charCount(point)
         }
 
         return result.toString()
@@ -76,136 +128,62 @@ object FontStyles {
         variation: FontVariation
     ): String {
 
-        if (
-            family == FontFamily.HELVETICA &&
-            (variation == FontVariation.REGULAR ||
-             variation == FontVariation.LIGHT)
-        ) {
-            return input
-        }
+        val style = when (variation) {
 
-        val upper: String
-        val lower: String
+            FontVariation.LIGHT -> {
+                NORMAL_UPPER to NORMAL_LOWER
+            }
 
-        when (family) {
-
-            FontFamily.CUPERTINO -> {
-                when (variation) {
-
-                    FontVariation.BOLD ->
-                        return convert(
-                            input,
-                            "𝗔𝗕𝗖𝗗𝗘𝗙𝗚𝗛𝗜𝗝𝗞𝗟𝗠𝗡𝗢𝗣𝗤𝗥𝗦𝗧𝗨𝗩𝗪𝗫𝗬𝗭",
-                            "𝗮𝗯𝗰𝗱𝗲𝗳𝗴𝗵𝗶𝗷𝗸𝗹𝗺𝗻𝗼𝗽𝗾𝗿𝘀𝘁𝘂𝘃𝘄𝘅𝘆𝘇"
-                        )
-
-                    FontVariation.ITALIC ->
-                        return convert(
-                            input,
-                            "𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡",
-                            "𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻"
-                        )
-
-                    FontVariation.BOLD_ITALIC ->
-                        return convert(
-                            input,
-                            "𝘼𝘽𝘾𝘿𝙀𝙁𝙂𝙃𝙄𝙅𝙆𝙇𝙈𝙉𝙊𝙋𝙌𝙍𝙎𝙏𝙐𝙑𝙒𝙓𝙔𝙕",
-                            "𝙖𝙗𝙘𝙙𝙚𝙛𝙜𝙝𝙞𝙟𝙠𝙡𝙢𝙣𝙤𝙥𝙦𝙧𝙨𝙩𝙪𝙫𝙬𝙭𝙮𝙯"
-                        )
-
-                    FontVariation.SMALL_CAPS ->
-                        return convert(
-                            input,
-                            NORMAL_UPPER,
-                            "ᴀʙᴄᴅᴇғɢʜɪᴊᴋʟᴍɴᴏᴘǫʀsᴛᴜᴠᴡxʏᴢ"
-                        )
-
-                    else -> {
-                        upper =
-                            "𝖠𝖡𝖢𝖣𝖤𝖥𝖦𝖧𝖨𝖩𝖪𝖫𝖬𝖭𝖮𝖯𝖰𝖱𝖲𝖳𝖴𝖵𝖶𝖷𝖸𝖹"
-
-                        lower =
-                            "𝖺𝖻𝖼𝖽𝖾𝖿𝗀𝗁𝗂𝗃𝗄𝗅𝗆𝗇𝗈𝗉𝗊𝗋𝗌𝗍𝗎𝗏𝗐𝗑𝗒𝗓"
-                    }
+            FontVariation.BOLD -> {
+                if (family == FontFamily.DRAVEN) {
+                    BOLD_FRAKTUR_UPPER to BOLD_FRAKTUR_LOWER
+                } else {
+                    BOLD_UPPER to BOLD_LOWER
                 }
             }
 
-            FontFamily.DRAVEN -> {
-                when (variation) {
-
-                    FontVariation.BOLD ->
-                        return convert(
-                            input,
-                            "𝕬𝕭𝕮𝕯𝕰𝕱𝕲𝕳𝕴𝕵𝕶𝕷𝕸𝕹𝕺𝕻𝕼𝕽𝕾𝕿𝖀𝖁𝖂𝖃𝖄𝖅",
-                            "𝖆𝖇𝖈𝖉𝖊𝖋𝖌𝖍𝖎𝖏𝖐𝖑𝖒𝖓𝖔𝖕𝖖𝖗𝖘𝖙𝖚𝖛𝖜𝖝𝖞𝖟"
-                        )
-
-                    FontVariation.CAPITAL ->
-                        return input.uppercase()
-
-                    FontVariation.SMALL_CAPS ->
-                        return convert(
-                            input,
-                            NORMAL_UPPER,
-                            "ᴀʙᴄᴅᴇғɢʜɪᴊᴋʟᴍɴᴏᴘǫʀsᴛᴜᴠᴡxʏᴢ"
-                        )
-
-                    else -> {
-                        upper =
-                            "𝔄𝔅ℭ𝔇𝔈𝔉𝔊ℌℑ𝔍𝔎𝔏𝔐𝔑𝔒𝔓𝔔ℜ𝔖𝔗𝔘𝔙𝔚𝔛𝔜ℨ"
-
-                        lower =
-                            "𝔞𝔟𝔠𝔡𝔢𝔣𝔤𝔥𝔦𝔧𝔨𝔩𝔪𝔫𝔬𝔭𝔮𝔯𝔰𝔱𝔲𝔳𝔴𝔵𝔶𝔷"
-                    }
-                }
+            FontVariation.ITALIC -> {
+                ITALIC_UPPER to ITALIC_LOWER
             }
 
-            FontFamily.HELVETICA -> {
-                when (variation) {
+            FontVariation.BOLD_ITALIC -> {
+                BOLD_ITALIC_UPPER to BOLD_ITALIC_LOWER
+            }
 
-                    FontVariation.BOLD ->
-                        return convert(
-                            input,
-                            "𝗔𝗕𝗖𝗗𝗘𝗙𝗚𝗛𝗜𝗝𝗞𝗟𝗠𝗡𝗢𝗣𝗤𝗥𝗦𝗧𝗨𝗩𝗪𝗫𝗬𝗭",
-                            "𝗮𝗯𝗰𝗱𝗲𝗳𝗴𝗵𝗶𝗷𝗸𝗹𝗺𝗻𝗼𝗽𝗾𝗿𝘀𝘁𝘂𝘃𝘄𝘅𝘆𝘇"
-                        )
+            FontVariation.SMALL_CAPS -> {
+                NORMAL_UPPER to SMALL_CAPS_LOWER
+            }
 
-                    FontVariation.ITALIC ->
-                        return convert(
-                            input,
-                            "𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡",
-                            "𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻"
-                        )
+            FontVariation.GOTHIC -> {
+                FRAKTUR_UPPER to FRAKTUR_LOWER
+            }
 
-                    FontVariation.BOLD_ITALIC ->
-                        return convert(
-                            input,
-                            "𝘼𝘽𝘾𝘿𝙀𝙁𝙂𝙃𝙄𝙅𝙆𝙇𝙈𝙉𝙊𝙋𝙌𝙍𝙎𝙏𝙐𝙑𝙒𝙓𝙔𝙕",
-                            "𝙖𝙗𝙘𝙙𝙚𝙛𝙜𝙝𝙞𝙟𝙠𝙡𝙢𝙣𝙤𝙥𝙦𝙧𝙨𝙩𝙪𝙫𝙬𝙭𝙮𝙯"
-                        )
+            FontVariation.CAPITAL -> {
+                return input.uppercase()
+            }
 
-                    FontVariation.MONOSPACE ->
-                        return convert(
-                            input,
-                            "𝙰𝙱𝙲𝙳𝙴𝙵𝙶𝙷𝙸𝙹𝙺𝙻𝙼𝙽𝙾𝙿𝚀𝚁𝚂𝚃𝚄𝚅𝚆𝚇𝚈𝚉",
-                            "𝚊𝚋𝚌𝚍𝚎𝚏𝚐𝚑𝚒𝚓𝚔𝚕𝚖𝚗𝚘𝚙𝚚𝚛𝚜𝚝𝚞𝚟𝚠𝚡𝚢𝚣"
-                        )
+            FontVariation.MONOSPACE -> {
+                MONO_UPPER to MONO_LOWER
+            }
 
-                    FontVariation.ROUNDED ->
-                        return convert(
-                            input,
-                            "𝔸𝔹ℂ𝔻𝔼𝔽𝔾ℍ𝕀𝕁𝕂𝕃𝕄ℕ𝕆ℙℚℝ𝕊𝕋𝕌𝕍𝕎𝕏𝕐ℤ",
-                            "𝕒𝕓𝕔𝕕𝕖𝕗𝕘𝕙𝕚𝕛𝕜𝕝𝕞𝕟𝕠𝕡𝕢𝕣𝕤𝕥𝕦𝕧𝕨𝕩𝕪𝕫"
-                        )
+            FontVariation.ROUNDED -> {
+                DOUBLE_UPPER to DOUBLE_LOWER
+            }
 
-                    else -> {
-                        upper = NORMAL_UPPER
-                        lower = NORMAL_LOWER
-                    }
+            FontVariation.REGULAR -> {
+                when (family) {
+                    FontFamily.CUPERTINO ->
+                        SANS_UPPER to SANS_LOWER
+
+                    FontFamily.DRAVEN ->
+                        FRAKTUR_UPPER to FRAKTUR_LOWER
+
+                    FontFamily.HELVETICA ->
+                        NORMAL_UPPER to NORMAL_LOWER
                 }
             }
         }
 
-        return convert(input, upper, lower)
+        return convert(input, style.first, style.second)
     }
 }
