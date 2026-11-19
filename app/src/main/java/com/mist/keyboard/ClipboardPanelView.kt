@@ -6,7 +6,7 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
-import android.view.View
+import android.view.HapticFeedbackConstants
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -24,7 +24,6 @@ class ClipboardPanelView(
     init {
         orientation = VERTICAL
         setPadding(dp(8), dp(5), dp(8), dp(5))
-
         buildPanel()
     }
 
@@ -49,13 +48,11 @@ class ClipboardPanelView(
             LayoutParams(0, dp(45), 1f)
         )
 
-        val clearButton = createButton("CLEAR") {
-            clipboardManager.clearHistory()
-            buildPanel()
-        }
-
         header.addView(
-            clearButton,
+            createButton("CLEAR") {
+                clipboardManager.clearHistory()
+                buildPanel()
+            },
             LayoutParams(dp(65), dp(38))
         )
 
@@ -107,41 +104,60 @@ class ClipboardPanelView(
             setPadding(0, dp(5), 0, dp(5))
         }
 
-        entries.forEachIndexed { index, text ->
+        entries.forEach { clipboardText ->
+
             val entry = LinearLayout(context).apply {
                 orientation = HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
+
                 background = roundedBackground(
                     Color.argb(105, 20, 43, 75)
                 )
-                setPadding(dp(10), dp(5), dp(5), dp(5))
+
+                setPadding(
+                    dp(10),
+                    dp(5),
+                    dp(5),
+                    dp(5)
+                )
             }
 
             val content = TextView(context).apply {
-                this.text = text
+                text = clipboardText
                 textSize = 13f
                 setTextColor(Color.WHITE)
                 maxLines = 3
                 gravity = Gravity.CENTER_VERTICAL
-                setPadding(dp(3), dp(5), dp(5), dp(5))
+
+                setPadding(
+                    dp(3),
+                    dp(5),
+                    dp(5),
+                    dp(5)
+                )
 
                 setOnClickListener {
-                    onTextSelected(text)
+                    onTextSelected(clipboardText)
                 }
             }
 
             entry.addView(
                 content,
-                LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f)
+                LayoutParams(
+                    0,
+                    LayoutParams.WRAP_CONTENT,
+                    1f
+                )
             )
 
             val remove = TextView(context).apply {
-                text = "×"
+                this.text = "×"
                 textSize = 23f
                 setTextColor(Color.LTGRAY)
                 gravity = Gravity.CENTER
+
                 setOnClickListener {
-                    clipboardManager.removeText(text)
+                    clipboardManager.removeText(clipboardText)
                     buildPanel()
                 }
             }
@@ -157,7 +173,12 @@ class ClipboardPanelView(
                     LayoutParams.MATCH_PARENT,
                     LayoutParams.WRAP_CONTENT
                 ).apply {
-                    setMargins(0, dp(3), 0, dp(3))
+                    setMargins(
+                        0,
+                        dp(3),
+                        0,
+                        dp(3)
+                    )
                 }
             )
         }
@@ -192,23 +213,27 @@ class ClipboardPanelView(
             typeface = Typeface.DEFAULT_BOLD
             setTextColor(Color.WHITE)
             gravity = Gravity.CENTER
+
             background = roundedBackground(
                 Color.rgb(19, 48, 82)
             )
 
             setOnClickListener {
                 performHapticFeedback(
-                    android.view.HapticFeedbackConstants.VIRTUAL_KEY
+                    HapticFeedbackConstants.VIRTUAL_KEY
                 )
                 action()
             }
         }
     }
 
-    private fun roundedBackground(color: Int): GradientDrawable {
+    private fun roundedBackground(
+        color: Int
+    ): GradientDrawable {
         return GradientDrawable().apply {
             setColor(color)
             cornerRadius = dp(12).toFloat()
+
             setStroke(
                 dp(1),
                 Color.argb(100, 90, 155, 230)
