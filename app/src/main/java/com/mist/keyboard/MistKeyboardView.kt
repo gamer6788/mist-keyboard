@@ -22,6 +22,7 @@ class MistKeyboardView(
 
     private var isShifted = false
     private var isSymbols = false
+    private var showingNumberRow = true
 
     private var showingEmoji = false
     private var showingFavorites = false
@@ -49,6 +50,11 @@ class MistKeyboardView(
             deleteHandler.postDelayed(this, 65)
         }
     }
+
+    private val numberRow = listOf(
+        "1", "2", "3", "4", "5",
+        "6", "7", "8", "9", "0"
+    )
 
     private val keyRows = listOf(
         listOf("q", "w", "e", "r", "t", "y", "u", "i", "o", "p"),
@@ -100,14 +106,15 @@ class MistKeyboardView(
 
         when {
             showingFontStudio -> buildFontStudioPanel()
-
             showingClipboard -> buildClipboardPanel()
-
             showingFavorites -> buildFavoritesPanel()
-
             showingEmoji -> buildEmojiPanel()
 
             else -> {
+                if (!isSymbols && showingNumberRow) {
+                    addNumberRow()
+                }
+
                 val rows = if (isSymbols) symbolRows else keyRows
 
                 rows.forEachIndexed { index, row ->
@@ -207,6 +214,48 @@ class MistKeyboardView(
         }
     }
 
+    private fun addNumberRow() {
+        val row = LinearLayout(service).apply {
+            orientation = HORIZONTAL
+            gravity = Gravity.CENTER
+        }
+
+        numberRow.forEach { number ->
+            val keyView = StarKeyView(service, number)
+
+            row.addView(
+                keyView,
+                LayoutParams(
+                    0,
+                    LayoutParams.MATCH_PARENT,
+                    1f
+                ).apply {
+                    setMargins(
+                        dp(2),
+                        dp(3),
+                        dp(2),
+                        dp(3)
+                    )
+                }
+            )
+
+            keyView.setOnClickListener {
+                tapFeedback()
+                service.currentInputConnection
+                    ?.commitText(number, 1)
+            }
+        }
+
+        keysContainer.addView(
+            row,
+            LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                0,
+                0.75f
+            )
+        )
+    }
+
     private fun addKeyRow(
         keys: List<String>,
         rowIndex: Int
@@ -214,16 +263,20 @@ class MistKeyboardView(
         val row = LinearLayout(service).apply {
             orientation = HORIZONTAL
             gravity = Gravity.CENTER
+
+            if (rowIndex == 1) {
+                setPadding(dp(9), 0, dp(9), 0)
+            }
         }
 
         keys.forEach { key ->
             val keyView = StarKeyView(service, key)
 
             val weight = when (key) {
-                "⇧", "⌫", "123", "ABC", "↵" -> 1.35f
+                "⇧", "⌫", "123", "ABC", "↵" -> 1.4f
                 "space" -> 3.8f
-                "🌐", "😊" -> 1.05f
-                ",", "." -> 0.8f
+                "🌐", "😊" -> 1.1f
+                ",", "." -> 0.85f
                 else -> 1f
             }
 
@@ -236,9 +289,9 @@ class MistKeyboardView(
                 ).apply {
                     setMargins(
                         dp(2),
-                        dp(3),
+                        dp(4),
                         dp(2),
-                        dp(3)
+                        dp(4)
                     )
                 }
             )
@@ -263,7 +316,7 @@ class MistKeyboardView(
         )
     }
 
-    // HOLD-TO-DELETE
+    // HOLD TO DELETE
 
     private fun attachHoldToDelete(view: StarKeyView) {
         view.setOnTouchListener { _, event ->
@@ -272,8 +325,8 @@ class MistKeyboardView(
 
                 MotionEvent.ACTION_DOWN -> {
                     deleteHasRepeated = false
-
                     view.isPressed = true
+
                     tapFeedback()
 
                     deleteHandler.postDelayed(
@@ -411,7 +464,7 @@ class MistKeyboardView(
         )
     }
 
-    // EMOJI PANEL
+    // EMOJI
 
     private fun buildEmojiPanel() {
         val picker = EmojiPickerView(
@@ -669,7 +722,7 @@ class MistKeyboardView(
         )
     }
 
-    // CLIPBOARD PANEL
+    // CLIPBOARD
 
     private fun buildClipboardPanel() {
         val panel = ClipboardPanelView(
